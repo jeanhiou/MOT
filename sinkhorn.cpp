@@ -72,9 +72,8 @@ int main(){
   bool impli = false ;
   // bool no_hedge = false;
   MatrixXd Payoffs_test = MatrixXd::Identity(2*N1+N2,2*N1+N2);
-  VectorXd x_y_h= ArrayXd::Zero(2*N1+N2);
-
-  cout << " resolution par gradient directo subito mdr" << endl;
+  
+  cout << " resolution par gradient" << endl;
   cout << Resolution_par_gradient(support1,support2,loi1,loi2,epsilon,OT_test) << endl;
   cout << "sans hedging " << endl;
 

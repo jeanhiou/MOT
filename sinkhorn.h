@@ -652,11 +652,15 @@ VectorXd Newton_CG(function<VectorXd(const VectorXd&)> f,function<MatrixXd(const
   return solution;
 };
 
-double Resolution_par_gradient(  VectorXd support1,VectorXd support2,VectorXd loi1,VectorXd loi2,double epsilon,function<double(double const &, double const&)> payoff){
+double Resolution_par_gradient(  VectorXd support1,VectorXd support2,VectorXd loi1,VectorXd loi2,
+  double epsilon,function<double(double const &, double const&)> payoff)
+  {
+  cout << "je suis rentré dans le programme " << endl;
   MatrixXd payoffs = Payoffs(support1, support2, payoff);
   int N1 = loi1.size();
+  cout << N1 << endl;
   int N2 = loi2.size();
-  VectorXd x0= ArrayXd::Zero(N1+N2+N1);
+  VectorXd x0 = ArrayXd::Zero(N1+N2+N1);
   cout << x0 << endl;
   for (int i = 0; i<N1;i++){
     x0(i) = payoffs.row(i).maxCoeff();
