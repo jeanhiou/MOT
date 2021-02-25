@@ -654,18 +654,19 @@ VectorXd Newton_CG(function<VectorXd(const VectorXd&)> f,function<MatrixXd(const
 
 double Resolution_par_gradient(  VectorXd support1,VectorXd support2,VectorXd loi1,VectorXd loi2,double epsilon,function<double(double const &, double const&)> payoff){
   MatrixXd payoffs = Payoffs(support1, support2, payoff);
-  function<VectorXd(VectorXd x)> grad_f = [=](VectorXd x){return Newton_objective_grad(x,loi1,loi2,payoffs,support1,support2,epsilon);};
-  function<MatrixXd(VectorXd x)> hessian_f = [=](VectorXd x ){return Newton_objective_hessian(x,loi1,loi2,payoffs,support1,support2,epsilon);};
   int N1 = loi1.size();
   int N2 = loi2.size();
   VectorXd x0= ArrayXd::Zero(N1+N2+N1);
+  cout << x0 << endl;
   for (int i = 0; i<N1;i++){
     x0(i) = payoffs.row(i).maxCoeff();
   };
   for (int j =0; j<N2;j++){
     x0(j+N1) = payoffs.col(j).minCoeff();
   };
-  cout << grad_f(x0) << endl;
+  function<VectorXd(VectorXd x)> grad_f = [=](VectorXd x){return Newton_objective_grad(x,loi1,loi2,payoffs,support1,support2,epsilon);};
+  function<MatrixXd(VectorXd x)> hessian_f = [=](VectorXd x ){return Newton_objective_hessian(x,loi1,loi2,payoffs,support1,support2,epsilon);};
+
   VectorXd solution =  Newton_CG(grad_f,hessian_f,x0);
   return Newton_objective(solution,loi1,loi2,payoffs,support1,support2,epsilon);
 };
