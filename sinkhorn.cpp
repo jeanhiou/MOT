@@ -39,8 +39,8 @@ double call(double x , double k ){
 
 int main(){
 
-  int N1 = 3;
-  int N2 = 3;
+  int N1 = 10;
+  int N2 = 10;
   double sigma1 = 0.2;
   double sigma2 = 0.2 * sqrt(1.5);
   double mu1 =  + pow(sigma1,2)/2;
@@ -72,7 +72,7 @@ int main(){
   bool impli = false ;
   // bool no_hedge = false;
   MatrixXd Payoffs_test = MatrixXd::Identity(2*N1+N2,2*N1+N2);
-  
+
   cout << " resolution par gradient" << endl;
   cout << Resolution_par_gradient(support1,support2,loi1,loi2,epsilon,OT_test) << endl;
   cout << "sans hedging " << endl;

@@ -152,7 +152,7 @@ cout << " epsilon_current = " << epsilon_depart << endl;
     esperance_psi_basse += psi_basse(i) * loi2(i);
   };
 
-  m.borne_basse = (maximum-minimum)*( - esperance_psi_basse - esperance_phi_basse)+minimum ;
+  m.borne_basse = (maximum-minimum)*( + esperance_psi_basse - esperance_phi_basse)+minimum ;
   m.borne_haute = (maximum-minimum)*( + esperance_phi_haute + esperance_psi_haute)+minimum ;
 // m.borne_basse = (maximum-minimum)*(esperance_psi_basse + esperance_phi_basse)+minimum ;
   // m.borne_haute = (maximum-minimum)*(esperance_phi_haute + esperance_psi_haute)+minimum ;

@@ -38,7 +38,7 @@ Eigen::VectorXd creation_objectif(Eigen::VectorXd loi1, Eigen::VectorXd loi2,boo
   int N1 = loi1.size();
   int N2 = loi2.size();
   if (hedging)
-  {Eigen::VectorXd objective=ArrayXd::Zero(N1+N2+N1);
+  {Eigen::VectorXd objective=Eigen::VectorXd::Zero(N1+N2+N1);
   for (int i = 0;i<N1;i++){
     objective(i)=loi1(i);};
   for (int i=0;i<N2;i++){
@@ -55,18 +55,37 @@ Eigen::VectorXd creation_objectif(Eigen::VectorXd loi1, Eigen::VectorXd loi2,boo
 };
 };
 
-Eigen::MatrixXd creation_contrainte(Eigen::VectorXd loi1,Eigen::VectorXd loi2, std::function<double(double const& , double const&)> payoff){
-  int N1 = loi1.size();
-  int N2 = loi2.size();
-  Eigen::MatrixXd constraints(N1*N2,N1+N2+1);
-  int k =0;
-  for (int i =0; i<N1;i++){
-    for (int j=0;j<N2;j++){
-      constraints(k,i)=1;
-      constraints(k,j+N1)=1;
-      constraints(k,N1+N2)=payoff(loi1[i],loi2[j]);
-      k+=1;
+
+Eigen::MatrixXd creation_contrainte_hedging(Eigen::VectorXd support1,Eigen::VectorXd support2,std::function<double(double const& , double const&)> payoff,bool hedging)
+  {
+    int N1 = support1.size();
+    int N2 = support2.size();
+    if (hedging){
+    Eigen::MatrixXd constraints=Eigen::MatrixXd::Zero(N1*N2,N1+N2+N1+1);
+    int k =0;
+    for (int i =0; i<N1;i++){
+      for (int j=0;j<N2;j++){
+        constraints(k,i)=1;
+        constraints(k,j+N1)=1;
+        constraints(k,i+N1+N1) = (support2[j]-support1[i]);
+        constraints(k,N1+N1+N2)= payoff(support1[i],support2[j]);
+        k+=1;
+      };
     };
+    return constraints;
+  }
+  else
+  {
+    Eigen::MatrixXd constraints(N1*N2,N1+N2+1);
+    int k =0;
+    for (int i =0; i<N1;i++){
+      for (int j=0;j<N2;j++){
+        constraints(k,i)=1;
+        constraints(k,j+N1)=1;
+        constraints(k,N1+N2)=payoff(support1[i],support2[j]);
+        k+=1;
+      };
+    };
+    return constraints;
   };
-  return constraints;
 };

@@ -10,7 +10,7 @@ struct Resolution_transport{
   function<double(double const &, double const&)> payoff): support1(support1),support2(support2),loi1(loi1),loi2(loi2), payoff(payoff){};
 
 
-  bornes Resolution_simplex();
+  bornes Resolution_simplex(bool );
   bornes Resolution_sinkhorn();
 
 
@@ -24,12 +24,12 @@ private:
 };
 
 
-bornes Resolution_transport::Resolution_simplex(){
+bornes Resolution_transport::Resolution_simplex(bool hedging = false ){
   using EigenSolver = simplex::Solver<Eigen::MatrixXd>;
   bornes m_resolution;
-  Eigen::MatrixXd constraints_basse =  creation_contrainte(support1,support2,payoff);
-  Eigen::MatrixXd constraints_haute =  creation_contrainte(support1,support2,payoff);
-  Eigen::VectorXd objectiveFunction= creation_objectif(loi1,loi2,false);
+  Eigen::MatrixXd constraints_basse =  creation_contrainte_hedging(support1,support2,payoff,hedging);
+  Eigen::MatrixXd constraints_haute =  creation_contrainte_hedging(support1,support2,payoff,hedging);
+  Eigen::VectorXd objectiveFunction=   creation_objectif(loi1,loi2,hedging);
 
   EigenSolver solver1(EigenSolver::MODE_MAXIMIZE, objectiveFunction, constraints_basse);
   EigenSolver solver2(EigenSolver::MODE_MINIMIZE, objectiveFunction, constraints_haute);
