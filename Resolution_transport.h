@@ -29,7 +29,7 @@ bornes Resolution_transport::Resolution_simplex(){
   bornes m_resolution;
   Eigen::MatrixXd constraints_basse =  creation_contrainte(support1,support2,payoff);
   Eigen::MatrixXd constraints_haute =  creation_contrainte(support1,support2,payoff);
-  Eigen::VectorXd objectiveFunction= creation_objectif(loi1,loi2);
+  Eigen::VectorXd objectiveFunction= creation_objectif(loi1,loi2,false);
 
   EigenSolver solver1(EigenSolver::MODE_MAXIMIZE, objectiveFunction, constraints_basse);
   EigenSolver solver2(EigenSolver::MODE_MINIMIZE, objectiveFunction, constraints_haute);

@@ -518,9 +518,10 @@ VectorXd Newton_objective_grad(VectorXd x_y_h,VectorXd loi1,VectorXd loi2, Matri
   int N1 = loi1.size();
   int N2 = loi2.size();
   VectorXd grad=ArrayXd::Zero(2*N1+N2);
+
   vector<int> seqx = sequence(0,N1);
-  vector<int> seqy = sequence(N1+1,N1+N2);
-  vector<int> seqh = sequence(N1+N2+1,2*N1+N2-1);
+  vector<int> seqy = sequence(N1,N1+N2);
+  vector<int> seqh = sequence(N1+N2,2*N1+N2);
   VectorXd phi = extract(x_y_h,seqx);
   VectorXd psi = extract(x_y_h,seqy);
   VectorXd h = extract(x_y_h,seqh);
@@ -533,7 +534,7 @@ VectorXd Newton_objective_grad(VectorXd x_y_h,VectorXd loi1,VectorXd loi2, Matri
     somme_haute *= exp( - phi[i]/epsilon);
     grad[i] =   - somme_haute + loi1[i];
   };
-  for (int j = 0 ; j<N1;j++){
+  for (int j = 0 ; j<N2;j++){
     double somme_haute = 0;
     for (int i = 0;i<N1;i++){
       somme_haute += exp( - ( - payoffs(i,j) + phi[i] + h[i]*(support2[j]-support1[i]))/epsilon);
@@ -548,7 +549,6 @@ VectorXd Newton_objective_grad(VectorXd x_y_h,VectorXd loi1,VectorXd loi2, Matri
     };
     grad[i+N1+N2] = - somme_h;
   };
-  cout << "taille vecteur = " << grad.size() << endl;
   return grad;
 };
 
@@ -639,12 +639,8 @@ VectorXd CG_basic_method(MatrixXd A,VectorXd b, VectorXd x0, double criterium){
 VectorXd Newton_CG(function<VectorXd(const VectorXd&)> f,function<MatrixXd(const VectorXd)> grad_f, VectorXd x0){
   int iter_max = 100;
   VectorXd solution = x0;
-  cout << solution << endl;
   double criterium;
-  cout << " f(solution) = " << f(solution) << endl;
   for (int i = 0; i< iter_max; i++){
-    cout << " dans la boucle " << i << endl;
-    cout << f(solution)  <<endl;
     criterium = min(0.5,sqrt( f(solution).norm() ) );
     cout << "critere = " << criterium << endl;
     solution = solution -  CG_basic_method(grad_f(solution),f(solution),solution,criterium);
@@ -655,13 +651,10 @@ VectorXd Newton_CG(function<VectorXd(const VectorXd&)> f,function<MatrixXd(const
 double Resolution_par_gradient(  VectorXd support1,VectorXd support2,VectorXd loi1,VectorXd loi2,
   double epsilon,function<double(double const &, double const&)> payoff)
   {
-  cout << "je suis rentré dans le programme " << endl;
   MatrixXd payoffs = Payoffs(support1, support2, payoff);
   int N1 = loi1.size();
-  cout << N1 << endl;
   int N2 = loi2.size();
   VectorXd x0 = ArrayXd::Zero(N1+N2+N1);
-  cout << x0 << endl;
   for (int i = 0; i<N1;i++){
     x0(i) = payoffs.row(i).maxCoeff();
   };

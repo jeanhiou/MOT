@@ -34,15 +34,25 @@ Eigen::MatrixXd loi_log(double sigma, double mu,int N){
   return loi_lo;
 };
 
-Eigen::VectorXd creation_objectif(Eigen::VectorXd loi1, Eigen::VectorXd loi2){
+Eigen::VectorXd creation_objectif(Eigen::VectorXd loi1, Eigen::VectorXd loi2,bool hedging){
   int N1 = loi1.size();
   int N2 = loi2.size();
+  if (hedging)
+  {Eigen::VectorXd objective=ArrayXd::Zero(N1+N2+N1);
+  for (int i = 0;i<N1;i++){
+    objective(i)=loi1(i);};
+  for (int i=0;i<N2;i++){
+    objective(i+N1)=loi2(i);};
+  return objective;}
+  else
+  {
   Eigen::VectorXd objective(N1+N2);
   for (int i = 0;i<N1;i++){
     objective(i)=loi1(i);};
   for (int i=0;i<N2;i++){
     objective(i+N1)=loi2(i);};
   return objective;
+};
 };
 
 Eigen::MatrixXd creation_contrainte(Eigen::VectorXd loi1,Eigen::VectorXd loi2, std::function<double(double const& , double const&)> payoff){
