@@ -13,8 +13,8 @@ double call(double x){
 
 int main(){
 
-  int N1 = 20;
-  int N2 = 20;
+  int N1 = 10;
+  int N2 = 10;
   double sigma1 = 0.2;
   double sigma2 = 0.2 * sqrt(1.5);
   double mu = 1;
@@ -36,7 +36,8 @@ int main(){
   Resolution_transport R_Test(support1,support2,loi1,loi2,OT_test);
 
   std::cout << R_Test.Resolution_sinkhorn() << std::endl;
-  std::cout << R_Test.Resolution_simplex(true)  << std::endl;
+  std::cout << R_Test.Resolution_simplex()  << std::endl;
+  std::cout << R_Test.Resolution_simplex_calls() << std::endl;
 
   return 0;
 }
