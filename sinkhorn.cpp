@@ -44,18 +44,17 @@ int main(){
   // bool no_hedge = false;
   MatrixXd Payoffs_test = MatrixXd::Identity(2*N1+N2,2*N1+N2);
 
-  cout << " resolution par gradient" << endl;
-  cout << Resolution_par_gradient(support1,support2,loi1,loi2,epsilon,OT_test) << endl;
+  // cout << " resolution par gradient" << endl;
+  // cout << Resolution_par_gradient(support1,support2,loi1,loi2,epsilon,OT_test) << endl;
   cout << "sans hedging " << endl;
-
   cout << Sink_test.resolution_avec_hedging(false,false) << endl;
   cout << Sink_test2.resolution_avec_hedging(false,false) << endl;
   cout << endl;
-  cout << " avec hedging " << endl;
-  cout << endl;
-  cout << Sink_test.resolution_avec_hedging(hedge,impli) << endl;
-  cout << Sink_test2.resolution_avec_hedging(hedge,impli) << endl;
-  cout << endl;
+  // cout << " avec hedging " << endl;
+  // cout << endl;
+  // cout << Sink_test.resolution_avec_hedging(hedge,impli) << endl;
+  // cout << Sink_test2.resolution_avec_hedging(hedge,impli) << endl;
+  // cout << endl;
 
   return 0;
 }

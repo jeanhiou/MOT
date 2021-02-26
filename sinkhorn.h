@@ -98,7 +98,6 @@ bornes Sinkhorn::resolution_sans_hedging(){
     psi_haute(j) = payoffs.col(j).maxCoeff();
   };
 
-
   while (epsilon_depart > epsilon){
   for (int k = 0 ; k<iter_max;k++){
   for (int i = 0; i< N1; i++){
@@ -108,14 +107,14 @@ bornes Sinkhorn::resolution_sans_hedging(){
     double minimum = 0;
     for (int j = 0; j< N2;j++){
       maximum = max( maximum, + (payoffs(i,j)-psi_haute[j])/epsilon);
-      minimum = max(minimum, - (payoffs(i,j)-psi_haute[j])/epsilon);
+      minimum = max(minimum, + ( - payoffs(i,j)-psi_haute[j])/epsilon);
     };
     for (int j = 0 ; j< N2;j++){
-      somme_haute += exp( + (payoffs(i,j)-psi_haute[j])/epsilon - maximum);
-      somme_basse += exp( - (payoffs(i,j)-psi_basse[j])/epsilon - minimum);
+      somme_haute += exp( + ( + payoffs(i,j)-psi_haute[j])/epsilon - maximum);
+      somme_basse += exp( + ( - payoffs(i,j)-psi_basse[j])/epsilon - minimum);
     };
-    phi_haute[i]= + epsilon * ( maximum +   log(somme_haute) - ln_loi1[i] );
-    phi_basse[i]= - epsilon * ( minimum + log(somme_basse) - ln_loi1[i] );
+    phi_haute[i]= + epsilon * ( maximum + log(somme_haute) - ln_loi1[i] );
+    phi_basse[i]= + epsilon * ( minimum + log(somme_basse) - ln_loi1[i] );
   };
   for (int j = 0; j< N2; j++){
     double somme_haute = 0;
@@ -124,14 +123,14 @@ bornes Sinkhorn::resolution_sans_hedging(){
     double minimum = 0;
     for (int i = 0; i< N1;i++){
       maximum = max (maximum, + (payoffs(i,j)-phi_haute[i])/epsilon);
-      minimum = max (minimum, - (payoffs(i,j)-phi_haute[i])/epsilon);
+      minimum = max (minimum, + (-payoffs(i,j)-phi_haute[i])/epsilon);
     };
     for (int i = 0 ; i< N1;i++){
-      somme_haute += exp( + (payoffs(i,j)-phi_haute[i])/epsilon - maximum);
-      somme_basse += exp( - (payoffs(i,j)-phi_basse[i])/epsilon - minimum);
+      somme_haute += exp( + ( + payoffs(i,j)-phi_haute[i])/epsilon - maximum);
+      somme_basse += exp( + ( - payoffs(i,j)-phi_basse[i])/epsilon - minimum);
     };
     psi_haute[j]=  + epsilon * ( maximum + log(somme_haute) - ln_loi2[j] );
-    psi_basse[j]=  - epsilon * ( minimum + log(somme_basse) - ln_loi2[j] );
+    psi_basse[j]=  + epsilon * ( minimum + log(somme_basse) - ln_loi2[j] );
   };
 };
 epsilon_depart = epsilon_depart/2;
@@ -151,8 +150,7 @@ cout << " epsilon_current = " << epsilon_depart << endl;
     esperance_psi_haute += psi_haute(i) * loi2(i);
     esperance_psi_basse += psi_basse(i) * loi2(i);
   };
-
-  m.borne_basse = (maximum-minimum)*( + esperance_psi_basse - esperance_phi_basse)+minimum ;
+  m.borne_basse = (maximum-minimum)*( - esperance_psi_basse - esperance_phi_basse)+minimum ;
   m.borne_haute = (maximum-minimum)*( + esperance_phi_haute + esperance_psi_haute)+minimum ;
 // m.borne_basse = (maximum-minimum)*(esperance_psi_basse + esperance_phi_basse)+minimum ;
   // m.borne_haute = (maximum-minimum)*(esperance_phi_haute + esperance_psi_haute)+minimum ;
@@ -352,15 +350,15 @@ bornes Sinkhorn::resolution_avec_hedging(const bool hedge, const bool impli = fa
     double maximum = 0;
     double minimum = 0;
     for (int j = 0; j< N2;j++){
-      maximum = max( maximum, + (payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-psi_haute[j])/epsilon);
-      minimum = max (minimum, - (payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-psi_basse[j])/epsilon);
+      maximum = max( maximum, + ( + payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-psi_haute[j])/epsilon);
+      minimum = max (minimum, + ( - payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-psi_basse[j])/epsilon);
     };
     for (int j = 0 ; j< N2;j++){
-      somme_haute += exp( + (payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-psi_haute[j])/epsilon - maximum);
-      somme_basse += exp( - (payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-psi_basse[j])/epsilon - minimum);
+      somme_haute += exp( + ( + payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-psi_haute[j])/epsilon - maximum);
+      somme_basse += exp( + ( - payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-psi_basse[j])/epsilon - minimum);
     };
     phi_haute[i]= + epsilon * ( maximum + log(somme_haute) - ln_loi1[i] );
-    phi_basse[i]= - epsilon * ( minimum + log(somme_basse) - ln_loi1[i] );
+    phi_basse[i]= + epsilon * ( minimum + log(somme_basse) - ln_loi1[i] );
   };
   // determination de h //
   if (hedge){
@@ -426,15 +424,15 @@ bornes Sinkhorn::resolution_avec_hedging(const bool hedge, const bool impli = fa
     double maximum = 0;
     double minimum = 0;
     for (int i = 0; i< N1;i++){
-      maximum = max( maximum, + (payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-phi_haute[i])/epsilon);
-      minimum = max (minimum, - (payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-phi_basse[i])/epsilon);
+      maximum = max( maximum, + ( + payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-phi_haute[i])/epsilon);
+      minimum = max (minimum, + ( - payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-phi_basse[i])/epsilon);
     };
     for (int i = 0 ; i< N1;i++){
-      somme_haute += exp( + (payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-phi_haute[i])/epsilon - maximum);
-      somme_basse += exp( - (payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-phi_basse[i])/epsilon - minimum);
+      somme_haute += exp( + ( + payoffs(i,j)-h_haute[i]*(support2[j]-support1[i])-phi_haute[i])/epsilon - maximum);
+      somme_basse += exp( + ( - payoffs(i,j)-h_basse[i]*(support2[j]-support1[i])-phi_basse[i])/epsilon - minimum);
     };
     psi_haute[j]=  + epsilon * ( maximum + log(somme_haute) - ln_loi2[j] );
-    psi_basse[j]=  - epsilon * ( minimum + log(somme_basse) - ln_loi2[j] );
+    psi_basse[j]=  + epsilon * ( minimum + log(somme_basse) - ln_loi2[j] );
   };
 };
 epsilon_depart = epsilon_depart/2;
@@ -502,10 +500,8 @@ double Newton_objective( VectorXd x_y_h,VectorXd loi1,VectorXd loi2, MatrixXd pa
     somme_2 += psi[i]*loi2[i];
   };
   for (int i =0;i<N1;i++){
-    cout << " i = " << i << endl;
     double somme_haute = 0;
     for (int j=0;j<N2;j++){
-      cout << " j = " << j << endl;
     somme_haute += exp( - ( - payoffs(i,j) + psi[j] + phi[i] + h[i]*(support2[j]-support1[i]))/epsilon );
     somme_3 += somme_haute;
   };

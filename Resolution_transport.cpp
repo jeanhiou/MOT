@@ -12,9 +12,9 @@ double call(double x){
 };
 
 int main(){
-
-  int N1 = 10;
-  int N2 = 10;
+  std::cout << " j'en veux joe" << std::endl;
+  int N1 = 50;
+  int N2 = 50;
   double sigma1 = 0.2;
   double sigma2 = 0.2 * sqrt(1.5);
   double mu = 1;
@@ -30,14 +30,15 @@ int main(){
 
   double epsilon = 0.01;
 
-  std::function<double(double const & ,double const& )> OT_test =[=](double x, double y){return call(x) ;};
+  std::function<double(double const & ,double const& )> OT_test =[=](double x, double y){return pow(x+y,2) ;};
   std::function<double(double const & ,double const& )> OT_test2 =[=](double x, double y){return -pow(x-y,2) ;};
 
   Resolution_transport R_Test(support1,support2,loi1,loi2,OT_test);
 
   std::cout << R_Test.Resolution_sinkhorn() << std::endl;
-  std::cout << R_Test.Resolution_simplex()  << std::endl;
-  std::cout << R_Test.Resolution_simplex_calls() << std::endl;
+  // std::cout << R_Test.Resolution_simplex()  << std::endl;
+  //
+  // std::cout << R_Test.Resolution_simplex_calls() << std::endl;
 
   return 0;
 }

@@ -25,9 +25,9 @@ Eigen::MatrixXd loi_log(double sigma, double mu,int N){
   std::mt19937_64 gen(rd());
   Eigen::MatrixXd loi_lo(N,2);
   for (int i = 0; i<N;i++){
-    double g = G(gen);
+    double g = sigma * G(gen) + mu - pow(sigma,2)/2;
     loi_lo(i,0)=exp(g);
-    loi_lo(i,1)=black_scholes_densite(sigma,mu,1,1,g);
+    loi_lo(i,1)=log_normal_densite(sigma,mu,exp(g));
   };
   double somme = (loi_lo.col(1)).sum();
   loi_lo.col(1) = loi_lo.col(1)/somme;
