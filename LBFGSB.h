@@ -6,12 +6,12 @@
 
 #include <stdexcept>  // std::invalid_argument
 #include <vector>
-#include <Eigen/Core>
-#include "LBFGSpp/Param.h"
-#include "LBFGSpp/BFGSMat.h"
-#include "LBFGSpp/Cauchy.h"
-#include "LBFGSpp/SubspaceMin.h"
-#include "LBFGSpp/LineSearchMoreThuente.h"
+#include <eigen3/Eigen/Core>
+#include "Param.h"
+#include "BFGSMat.h"
+#include "Cauchy.h"
+#include "SubspaceMin.h"
+#include "LineSearchMoreThuente.h"
 
 
 namespace LBFGSpp {

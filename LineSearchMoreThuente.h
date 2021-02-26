@@ -5,8 +5,8 @@
 #define LINE_SEARCH_MORE_THUENTE_H
 
 #include <stdexcept>  // std::invalid_argument, std::runtime_error
-#include <Eigen/Core>
-#include "LBFGSpp/Param.h"
+#include <eigen3/Eigen/Core>
+#include "Param.h"
 
 
 namespace LBFGSpp {
@@ -22,7 +22,7 @@ namespace LBFGSpp {
 /// only need the first stage to guarantee the convergence.
 ///
 /// Reference:
-/// [1] Moré, J. J., & Thuente, D. J. (1994). Line search algorithms with guaranteed sufficient decrease. 
+/// [1] Moré, J. J., & Thuente, D. J. (1994). Line search algorithms with guaranteed sufficient decrease.
 ///
 template <typename Scalar>
 class LineSearchMoreThuente

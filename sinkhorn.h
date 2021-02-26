@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <eigen3/Eigen/Dense>
 #include "LBFGS.h"
+#include "LBFGSB.h"
 
 using namespace LBFGSpp;
 using namespace std;
@@ -176,27 +177,23 @@ double Newton_algorithm1D(function<double(double const &)> f,function<double(dou
 /////  Derive essai_1 //////////::
 //// trop d'explosions snif snif snif //////////
 double Derivee_F_x_h(double h,int i,double pointx, double phi_x,VectorXd psi_y,VectorXd support2,
-  double epsilon,MatrixXd payoffs, const bool up_or_low){
-  int N2 = payoffs.row(0).size();
-  double signe = 1;
-  if (up_or_low){ signe = -1;};
+  double epsilon,MatrixXd payoffs){
+  int N2 = support2.size();
   double somme = 0;
   for (int j = 0; j<N2;j++){
-    somme += exp( signe * ( + phi_x + psi_y[j] + h*(support2[j]-pointx) - payoffs(i,j))/epsilon) * (support2[j]-pointx);
-  }
-  return  signe * somme;
+    somme += exp( - (+ psi_y[j] + h*(support2[j]-pointx) - payoffs(i,j))/epsilon) * (support2[j]-pointx);
+  };
+  return  pow(somme * exp( - phi_x /epsilon ),2);
 };
 
-double Derivee2_F_x_h(double h,int i,double pointx, double phi_x,VectorXd psi_y,VectorXd support2,
-  double epsilon,MatrixXd payoffs, const bool up_or_low){
-  int N2 = payoffs.row(0).size();
-  double signe = 1;
-  if (up_or_low){signe = -1;};
+double Derivee2_F_x_h(double h,int i,double pointx, double phi_x,VectorXd psi_y,VectorXd support2,double epsilon,MatrixXd payoffs)
+  {
+  int N2 = support2.size();
   double somme = 0;
   for (int j = 0; j<N2;j++){
-    somme += exp( signe *  ( + phi_x + psi_y[j] + h*(support2[j]-pointx) - payoffs(i,j))/epsilon) * pow(support2[j]-pointx,2);
-  }
-  return 1/epsilon * somme;
+    somme += exp( -  ( + psi_y[j] + h*(support2[j]-pointx) - payoffs(i,j))/epsilon) * pow(support2[j]-pointx,2);
+  };
+  return 1/epsilon * somme * exp( - phi_x / epsilon);
 };
 
 //// Derivee essai_2 par méthode implicite ////
@@ -240,7 +237,7 @@ double Derivee2_F_x_h_impli(double h,int i,double pointx,VectorXd support2, doub
 
 class F_deri{
 private:
-  int i;
+  int i ;
   double pointx;
   double phi_x;
   VectorXd psi_y;
@@ -250,15 +247,18 @@ private:
   bool up_or_low;
 
 public:
-  F_deri(  int i,double pointx,double phi_x,VectorXd psi_y,VectorXd support2,double epsilon,MatrixXd payoffs,bool up_or_low):
-  i(i),pointx(pointx),phi_x(phi_x),psi_y(psi_y),support2(support2),epsilon(epsilon),payoffs(payoffs),up_or_low(up_or_low){};
+  F_deri(int i,double pointx,double phi_x,VectorXd psi_y,VectorXd support2,double epsilon,MatrixXd payoffs):
+  i(i),pointx(pointx),phi_x(phi_x),psi_y(psi_y),support2(support2),epsilon(epsilon),payoffs(payoffs){};
 
-  double operator()(VectorXd x, VectorXd& grad){
-    double fx = Derivee_F_x_h(x[0],i,pointx,phi_x,psi_y,support2,epsilon,payoffs,up_or_low);
-    grad[0] =   Derivee2_F_x_h(x[0],i,pointx,phi_x,psi_y,support2,epsilon,payoffs,up_or_low);
+  double operator()(const VectorXd x, VectorXd& grad){
+    double fx;
+    double derivee =Derivee_F_x_h(x[0],i,pointx,phi_x,psi_y,support2,epsilon,payoffs);
+      fx = pow(derivee,2);
+      grad[0] = 2 * derivee * Derivee2_F_x_h(x[0],i,pointx,phi_x,psi_y,support2,epsilon,payoffs);
     return fx;
   };
 };
+
 
 class F_deri_impli{
 private:
@@ -276,8 +276,9 @@ public:
   i(i),pointx(pointx),psi_y(psi_y),support2(support2),epsilon(epsilon),payoffs(payoffs),ln_loi(ln_loi),up_or_low(up_or_low){};
 
   double operator()(VectorXd x, VectorXd& grad){
-    double fx = Derivee_F_x_h_impli(x[0],i,pointx,support2,epsilon,ln_loi,psi_y,payoffs,up_or_low);
-    grad[0] = Derivee2_F_x_h_impli(x[0],i,pointx,support2,epsilon,ln_loi,psi_y,payoffs,up_or_low);
+    double derivee = Derivee_F_x_h_impli(x[0],i,pointx,support2,epsilon,ln_loi,psi_y,payoffs,up_or_low);
+    double fx = pow(derivee,2);
+    grad[0] = derivee * Derivee2_F_x_h_impli(x[0],i,pointx,support2,epsilon,ln_loi,psi_y,payoffs,up_or_low);
     return fx;
   };
 };
@@ -373,20 +374,13 @@ bornes Sinkhorn::resolution_avec_hedging(const bool hedge, const bool impli = fa
     double fx_basse;
     double fx_haute;
     VectorXd x_haute(1);
-    x_haute(0) = 100.;
     VectorXd x_basse(1);
-    x_basse(0) = 100.;
+    x_haute(0) = h_haute[i];
+    x_basse(0) = h_basse[i];
     int niter  = solver.minimize( haute, x_haute, fx_basse);
     int niter2 = solver.minimize( basse, x_basse, fx_haute);
     h_haute[i] = x_haute.transpose()[0];
     h_basse[i] = x_basse.transpose()[0];
-
-    // function<double(double const &)> derivee_premiere_haute = [=](double h){return Derivee_F_x_h_impli(h,i,support1[i],support2,epsilon,ln_loi1[i],psi_haute,payoffs,true);};
-    // function<double(double const &)> derivee_seconde_haute = [=](double h){return Derivee2_F_x_h_impli(h,i,support1[i],support2,epsilon,ln_loi1[i],psi_haute,payoffs,true);};
-    // function<double(double const &)> derivee_premiere_basse = [=](double h){return Derivee_F_x_h_impli(h,i,support1[i],support2,epsilon,ln_loi1[i],psi_basse,payoffs,false);};
-    // function<double(double const &)> derivee_seconde_basse = [=](double h){return Derivee2_F_x_h_impli(h,i,support1[i],support2,epsilon,ln_loi1[i],psi_basse,payoffs,false);};
-    // h_haute[i] = Newton_algorithm1D(derivee_premiere_haute,derivee_seconde_haute,1,30);
-    // h_basse[i] = Newton_algorithm1D(derivee_premiere_basse,derivee_seconde_basse,1,30);
   };
 }
   else
@@ -395,25 +389,27 @@ bornes Sinkhorn::resolution_avec_hedging(const bool hedge, const bool impli = fa
       param.epsilon = 1e-6;
       param.max_iterations = 100;
       LBFGSSolver<double> solver(param);
-    for (int i = 0;i<N1;i++){
-      F_deri haute(i,support1[i],phi_haute[i],psi_haute,support2,epsilon,payoffs,true);
-      F_deri basse(i,support1[i],phi_basse[i],psi_basse,support2,epsilon,payoffs,false);
-      double fx_basse;
-      double fx_haute;
-      VectorXd x_haute(1);
-      x_haute(0) = 100.;
-      VectorXd x_basse(1);
-      x_basse(0) = 100.;
-      int niter  = solver.minimize( haute, x_haute, fx_basse);
-      int niter2 = solver.minimize( basse, x_basse, fx_haute);
-      h_haute[i] = x_haute.transpose()[0];
-      h_basse[i] = x_basse.transpose()[0];
+      cout << " aaaaaaaa " << endl;
+      for (int i = 0 ; i< N1 ;i ++){
+        F_deri haute(i,support1[i],phi_haute[i],psi_haute,support2,epsilon, payoffs);
+        F_deri basse(i,support1[i],phi_basse[i],psi_basse,support2,epsilon, -1 * payoffs);
+        double fx_basse;
+        double fx_haute;
+        VectorXd x_haute(1);
+        VectorXd x_basse(1);
+        x_haute(0)= h_basse[i];
+        x_basse(0)= h_haute[i];
+        cout << " check = " << endl;
+        int niter  = solver.minimize( haute , x_haute, fx_basse);
+        int niter2 = solver.minimize( basse , x_basse, fx_haute);
+        h_haute[i]= x_haute.transpose()[0];
+        h_basse[i]= x_basse.transpose()[0];
+      };
     //
     // function<double(double const &)> derivee_premiere_haute = [=](double h){return Derivee2_F_x_h(h,i,support1[i],phi_haute[i],psi_haute,support2,epsilon,payoffs,true);};
     // function<double(double const &)> derivee_seconde_haute = [=](double h){ return Derivee2_F_x_h(h,i,support1[i],phi_haute[i],psi_haute,support2,epsilon,payoffs,true);};
     // function<double(double const &)> derivee_premiere_basse = [=](double h){return Derivee2_F_x_h(h,i,support1[i],phi_basse[i],psi_basse,support2,epsilon,payoffs,false);};
     // function<double(double const &)> derivee_seconde_basse = [=](double h){ return Derivee2_F_x_h(h,i,support1[i],phi_basse[i],psi_basse,support2,epsilon,payoffs,false);};
-  };
 };
 };
   // determination de psi///
@@ -437,6 +433,7 @@ bornes Sinkhorn::resolution_avec_hedging(const bool hedge, const bool impli = fa
 };
 epsilon_depart = epsilon_depart/2;
 cout <<"epsilon_current = " <<  epsilon_depart << endl;
+
 };
 
   double esperance_phi_haute = 0.;

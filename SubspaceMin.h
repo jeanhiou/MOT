@@ -6,7 +6,7 @@
 
 #include <stdexcept>
 #include <vector>
-#include <Eigen/Core>
+#include <eigen3/Eigen/Core>
 #include "BFGSMat.h"
 
 
